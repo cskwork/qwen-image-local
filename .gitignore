@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+local.json
+outputs/
+*.gguf
+*.safetensors
+*.download
+*.ranges.json
+*.chunk-*
+*.zip
+qa/
+.impeccable/

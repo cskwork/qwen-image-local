@@ -1,0 +1,33 @@
+{
+  "date": "2026-09-28",
+  "platform": "Windows",
+  "gpu": "NVIDIA GeForce RTX 4060 8GB",
+  "model": "Qwen-Image-2.1 Q4_K_M",
+  "text_encoder": "Qwen3-VL-8B-Instruct UD-Q4_K_XL",
+  "runtime_commit": "3f8527a",
+  "original_portrait": {
+    "width": 832, "height": 1216, "steps": 20, "seed": 42,
+    "cfg_scale": 6.0, "elapsed_seconds": 134.2,
+    "image": "assets/portrait.png"
+  },
+  "packaged_skill_run": {
+    "width": 832, "height": 1216, "steps": 20, "seed": 42,
+    "cfg_scale": 6.0, "vae_tiling": true, "elapsed_seconds": 137.85,
+    "exit_code": 0, "visual_inspection": "passed"
+  },
+  "validation": {
+    "unit_tests": 8,
+    "skill_schema": "passed",
+    "installed_skill_doctor_with_sha256": "passed",
+    "installer_reuse_of_existing_assets": "passed",
+    "desktop_width": 1280,
+    "mobile_width": 390,
+    "horizontal_page_overflow": false,
+    "tabs_keyboard_and_clipboard": "passed"
+  },
+  "limitations": [
+    "Single-machine measurements; not a speed guarantee.",
+    "No completed matched BF16 benchmark.",
+    "CI runs offline unit tests, not GPU inference."
+  ]
+}

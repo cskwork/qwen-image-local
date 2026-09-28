@@ -1,0 +1,4 @@
+interface:
+  display_name: "Qwen Image Local"
+  short_description: "Generate Qwen images on a local Windows NVIDIA PC"
+  default_prompt: "Use $qwen-image-local to generate a photorealistic portrait on my local PC."
