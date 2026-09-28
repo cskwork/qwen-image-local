@@ -50,13 +50,35 @@ You can also set `QWEN_IMAGE_LOCAL_ROOT` or put `{"root":"D:\\models\\qwen-image
 
 ## Generate
 
+### Local web studio
+
+After installing Python and the models, double-click **`start-web.cmd`** in the repository. It starts a loopback-only server and opens the studio in your browser. Enter your prompt on the left; the generated image appears on the right with a Save PNG button. Keep the launcher running while generating.
+
+Or run explicitly:
+
+```powershell
+python skills/qwen-image-local/scripts/qwen_local.py serve --open
+```
+
+For an existing model folder:
+
+```powershell
+python skills/qwen-image-local/scripts/qwen_local.py --root 'D:\models\qwen-image-local' serve --open
+```
+
+Default address: `http://127.0.0.1:8766/`. Use `serve --port 8770 --open` if that port is busy. Output images and their logs/settings are saved under the model root's `outputs/web`; use `--output-dir` after `serve` to change this. The server handles one job at a time. Refreshing the page reconnects to its current job; restarting the server clears the on-screen job but preserves saved files.
+
+Missing models are shown clearly in the page; install them with the existing `install` command, then restart the studio. No automatic model downloads occur from the web UI. The studio binds to 127.0.0.1, rejects cross-origin generation requests, and uses no external web resources. Do not expose it through a public tunnel or reverse proxy. This is a local single-user tool, not a hosted generation service. GitHub Pages remains the public introduction and cannot run your GPU.
+
+### Command line
+
 ```powershell
 python skills/qwen-image-local/scripts/qwen_local.py generate --prompt 'A natural studio portrait of an adult model in a cream linen shirt, gray background, soft light' --output outputs/portrait.png
 ```
 
 Defaults: **832×1216**, **20 steps**, seed **42**. Options: `--width`, `--height`, `--steps`, `--seed`, `--max-vram`. Dimensions must be multiples of 32 from 256 to 2048; higher resolutions are not benchmarked. Outputs must be PNG. Existing images, logs, and metadata files are never overwritten. Tiled VAE decoding is enabled for the tested 8GB GPU.
 
-The helper saves the PNG, a diagnostic `.png.log`, and generation settings/timing in `.png.json`. It checks the exit status, output existence, PNG header, and dimensions; the agent then visually inspects the image. Errors remain errors. No automatic model deletion, background server, network call during generation, or hosted fallback.
+The helper saves the PNG, a diagnostic `.png.log`, and generation settings/timing in `.png.json`. It checks the exit status, output existence, PNG header, and dimensions; the agent then visually inspects the image. Errors remain errors. There is no automatic model deletion or hosted fallback. CLI generation makes no network calls; the optional studio uses local loopback requests only.
 
 **Text-to-image only.** Image editing needs extra vision weights and a separately tested workflow.
 

@@ -22,6 +22,10 @@ Translate the user's image intent into a clear prompt while preserving subject, 
 
 Defaults are 832×1216, 20 steps, CFG 6, seed 42, 6.5 GiB VRAM budget, and tiled VAE decoding. Use `--width` and `--height` in multiples of 32, `--steps`, and `--seed` when requested. Keep output paths unique; existing images and sidecars are protected against overwriting. Image editing is not supported by this packaged workflow.
 
+## Local web studio
+
+When the user wants a prompt-entry page with the output beside it, run `python scripts/qwen_local.py serve --open` with the same root configuration. It serves the bundled `web/` assets at `http://127.0.0.1:8766/`. Keep the server process alive for the user; use `--port` after `serve` when the default port is occupied. Outputs default to the model root's `outputs/web`. Verify readiness and, when testing generation, submit through the page and wait until the actual image is visible. The web UI runs one job at a time, requires local models, and does not download models automatically. See [setup](references/setup.md) for first-time installation.
+
 ## Completion
 
 Stay with the process until it exits. A launch or a progress percentage is not completion. Require exit code 0 and the helper's saved-image confirmation. Open the PNG using the available image viewer, check it against the request, then display it with an absolute path. Report the measured elapsed time from its JSON sidecar when useful. Keep failures explicit and preserve logs; do not claim a performance improvement from unmatched settings.

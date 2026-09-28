@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Qwen Local Studio</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+<header><a href="/" class="brand">qwen<span>/</span>local <small>STUDIO</small></a><span class="local">On your PC · Qwen Image 2.1 Q4</span></header>
+<main>
+<section class="controls" aria-labelledby="create-title">
+<h1 id="create-title">What will you create?</h1><p class="description">Describe an image. Your local GPU does the rest.</p>
+<div id="connection" role="status">Checking the local model…</div>
+<form id="generate-form">
+<label for="prompt">Image description</label><textarea id="prompt" name="prompt" rows="8" maxlength="4000" required placeholder="A natural studio portrait, soft window light, warm gray background…"></textarea>
+<div class="fields"><div><label for="size">Image size</label><select id="size"><option value="832x1216">Portrait · 832 × 1216</option><option value="1216x832">Landscape · 1216 × 832</option><option value="768x768">Square · 768 × 768</option><option value="512x512">Small square · 512 × 512</option></select></div><div><label for="steps">Steps</label><select id="steps"><option value="10">10 · quick draft</option><option value="20" selected>20 · standard</option><option value="30">30 · more steps</option><option value="40">40 · more steps</option></select></div></div>
+<label for="seed">Seed <span class="hint">same settings, repeatable result</span></label><input id="seed" type="number" min="-1" max="2147483647" value="42" required>
+<button id="generate" type="submit" disabled>Generate image <span aria-hidden="true">→</span></button>
+<p class="small">One image at a time. A portrait at 20 steps took about 2 minutes on an RTX 4060 8GB. Your time may differ.</p>
+</form>
+<details><summary>Model location &amp; first-time setup</summary><p id="model-root"></p><p>Missing models? In the repository folder, run:</p><pre>python skills/qwen-image-local/scripts/qwen_local.py install</pre><p>Then restart this server. To reuse models elsewhere, set <code>QWEN_IMAGE_LOCAL_ROOT</code> before launching.</p><p>Initial download: about 11GB. Generation uses local files only.</p></details>
+</section>
+<section class="result" aria-labelledby="result-title"><div class="result-header"><h2 id="result-title">Your image</h2><a id="download" class="download" hidden download="qwen-local.png">Save PNG ↓</a></div>
+<div id="canvas"><div id="empty"><div class="frame" aria-hidden="true"></div><h3>A blank canvas. Your idea.</h3><p>Your generated image will appear here.</p></div><img id="image" alt="Your locally generated image" hidden></div>
+<div class="statusbar" aria-live="polite"><span id="activity">Ready when you are.</span><span id="elapsed"></span></div><progress id="progress" hidden aria-label="Image generation in progress"></progress>
+<p id="error" role="alert" hidden></p><p id="result-info" class="small"></p>
+</section>
+</main><footer>Local generation. No image API. Keep the launcher running while you create.</footer>
+</body></html>

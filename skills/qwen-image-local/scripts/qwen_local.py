@@ -123,6 +123,10 @@ def main():
     check = sub.add_parser('doctor', help='Check local files and NVIDIA GPU')
     check.add_argument('--verify', action='store_true', help='Also verify model SHA-256 hashes')
     sub.add_parser('install', help='Download and verify pinned model/runtime files')
+    web = sub.add_parser('serve', help='Open the local prompt-and-image web app')
+    web.add_argument('--port', type=int, default=8766)
+    web.add_argument('--open', action='store_true', dest='open_browser')
+    web.add_argument('--output-dir', type=Path, help='Image directory (default: ROOT/outputs/web)')
     gen = sub.add_parser('generate', help='Generate one image without network access')
     gen.add_argument('--prompt', required=True)
     gen.add_argument('--output', required=True)
@@ -143,6 +147,9 @@ def main():
         from download import install
         install(root, json.loads(MANIFEST.read_text(encoding='utf-8')))
         doctor(root, verify=True)
+    elif args.action == 'serve':
+        from web_server import serve
+        serve(root, args.port, args.open_browser, args.output_dir)
     else:
         generate(root, args)
 
