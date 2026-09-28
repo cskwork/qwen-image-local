@@ -1,0 +1,8 @@
+[
+  {
+    "path": "models/mmproj-Qwen3VL-8B-Instruct-F16.gguf",
+    "url": "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF/resolve/f982a07559d4a2f6c8744d840bf6fccab30eea96/mmproj-Qwen3VL-8B-Instruct-F16.gguf?download=true",
+    "size": 1159029824,
+    "sha256": "ca524100ebf825c9a870db1c580d03879e0da0ab2541697e2458e64891cf9d38"
+  }
+]

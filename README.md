@@ -4,6 +4,8 @@ Generate images on a Windows NVIDIA PC with **Qwen-Image-2.1 Q4**, directly from
 
 [Landing page](https://cskwork.github.io/qwen-image-local/) · [Agent skill](skills/qwen-image-local/SKILL.md)
 
+Current release: **v0.1.0** · [Download and release notes](https://github.com/cskwork/qwen-image-local/releases/latest)
+
 ![Actual locally generated portrait](docs/assets/portrait.png)
 
 ## What is tested
@@ -66,7 +68,27 @@ For an existing model folder:
 python skills/qwen-image-local/scripts/qwen_local.py --root 'D:\models\qwen-image-local' serve --open
 ```
 
-Default address: `http://127.0.0.1:8766/`. Use `serve --port 8770 --open` if that port is busy. Output images and their logs/settings are saved under the model root's `outputs/web`; use `--output-dir` after `serve` to change this. The server handles one job at a time. Refreshing the page reconnects to its current job; restarting the server clears the on-screen job but preserves saved files.
+Default address: `http://127.0.0.1:8766/`. Use `serve --port 8770 --open` if that port is busy. Output images and their logs/settings are saved under the model root's `outputs/web`; use `--output-dir` after `serve` to change this. Each server handles one job at a time, and an OS lock also prevents concurrent generation across processes using the same model root.
+
+Use **Previous / Next** or the thumbnails to browse versions. **Reuse prompt & settings** restores a selected version's controls for refinement; generating saves a new image without replacing the original. The latest 100 saved studio versions are loaded again after a server restart. Files beyond the displayed history are preserved. Corrupt history records are reported without deleting their files.
+
+### Attach a reference image
+
+Install the optional **1.16GB vision component** once:
+
+```powershell
+python skills/qwen-image-local/scripts/qwen_local.py install-reference
+```
+
+Use the same `--root` or local configuration as your main models. Refresh the studio, attach a PNG/JPEG, and describe what to keep or change. **Use image as reference** attaches a selected history version directly. Remove the reference to return to text-only generation. Uploads stay in the output folder's `references` subfolder; they are not sent to a hosted service. Limits: one reference per request, 8MB per image, and 4096 pixels per side.
+
+CLI equivalent:
+
+```powershell
+python skills/qwen-image-local/scripts/qwen_local.py generate --reference reference.png --prompt 'Change the background to a garden, keeping the subject' --output outputs/with-reference.png
+```
+
+Reference conditioning is experimental in v0.1.0: the vision file and request path are implemented and verified by automated checks, but a completed reference-guided GPU generation has not yet been accepted. User testing is pending; results may not preserve every detail and can take longer than text-only generation.
 
 Missing models are shown clearly in the page; install them with the existing `install` command, then restart the studio. No automatic model downloads occur from the web UI. The studio binds to 127.0.0.1, rejects cross-origin generation requests, and uses no external web resources. Do not expose it through a public tunnel or reverse proxy. This is a local single-user tool, not a hosted generation service. GitHub Pages remains the public introduction and cannot run your GPU.
 
@@ -80,7 +102,7 @@ Defaults: **832×1216**, **20 steps**, seed **42**. Options: `--width`, `--heigh
 
 The helper saves the PNG, a diagnostic `.png.log`, and generation settings/timing in `.png.json`. It checks the exit status, output existence, PNG header, and dimensions; the agent then visually inspects the image. Errors remain errors. There is no automatic model deletion or hosted fallback. CLI generation makes no network calls; the optional studio uses local loopback requests only.
 
-**Text-to-image only.** Image editing needs extra vision weights and a separately tested workflow.
+Both text-only and reference-conditioned requests are exposed. The text-only workflow has completed GPU verification; reference-conditioned output quality still needs user testing.
 
 ## Models and licenses
 
@@ -90,6 +112,7 @@ The helper saves the PNG, a diagnostic `.png.log`, and generation settings/timin
 | Text encoder, UD-Q4_K_XL | [Unsloth Qwen3-VL-8B-Instruct-GGUF](https://huggingface.co/unsloth/Qwen3-VL-8B-Instruct-GGUF) | 5.15GB |
 | Model-specific BF16 VAE | [Unsloth Qwen-Image-2.1-FP8](https://huggingface.co/unsloth/Qwen-Image-2.1-FP8) | 0.68GB |
 | Windows CUDA12 runtime | [stable-diffusion.cpp 3f8527a](https://github.com/leejet/stable-diffusion.cpp/releases/tag/master-929-3f8527a) | 0.90GB download |
+| Optional reference vision encoder | [Qwen Qwen3-VL-8B-Instruct-GGUF](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct-GGUF) | 1.16GB |
 
 Sizes are download sizes, not total VRAM requirements. Upstream models and runtime retain their own licenses, including the Qwen Research license shown by the image-model publisher. Check those terms for your intended use; this repository does not relicense the weights. This is an independent integration, not an official Qwen or Unsloth product.
 

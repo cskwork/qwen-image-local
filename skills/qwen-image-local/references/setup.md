@@ -25,6 +25,12 @@ Or supply `--root 'D:\models\qwen-image-local'` before `install`. Allow about 16
 
 `install` reads only the bundled asset manifest. It does not run downloaded scripts; it extracts verified Windows executable/DLL archives. Model licenses are separate from this package's code license. See the upstream repositories linked in the root README before using or redistributing their weights.
 
+## Optional reference support
+
+After authorization to add reference conditioning, run `python scripts/qwen_local.py install-reference` with the same root. This downloads and verifies the pinned 1.16GB `mmproj-Qwen3VL-8B-Instruct-F16.gguf` vision component. It is separate from the base installation. Refresh the studio to enable attachments. One PNG/JPEG (8MB maximum, 4096 pixels per side) can be attached per web request; selected history images can also be references. CLI uses `generate --reference PATH --prompt TEXT --output NEW.png`.
+
+The reference path is experimental in v0.1.0; unit tests and attachment handling are verified, but completed GPU reference output still needs user acceptance testing. Do not promise identity preservation or speed based on the text-only benchmark.
+
 ## Failure handling
 
 - Missing root/files: check the configured root before downloading duplicates.

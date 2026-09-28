@@ -8,17 +8,20 @@
 <div id="connection" role="status">Checking the local model…</div>
 <form id="generate-form">
 <label for="prompt">Image description</label><textarea id="prompt" name="prompt" rows="8" maxlength="4000" required placeholder="A natural studio portrait, soft window light, warm gray background…"></textarea>
+<div class="reference-control"><label for="reference-file">Reference image <span class="optional">optional</span></label><input id="reference-file" type="file" accept="image/png,image/jpeg" disabled><p id="reference-help" class="small">Checking reference support…</p><div id="reference-preview" hidden><img id="reference-image" alt="Selected reference"><button id="remove-reference" type="button">Remove reference</button></div></div>
 <div class="fields"><div><label for="size">Image size</label><select id="size"><option value="832x1216">Portrait · 832 × 1216</option><option value="1216x832">Landscape · 1216 × 832</option><option value="768x768">Square · 768 × 768</option><option value="512x512">Small square · 512 × 512</option></select></div><div><label for="steps">Steps</label><select id="steps"><option value="10">10 · quick draft</option><option value="20" selected>20 · standard</option><option value="30">30 · more steps</option><option value="40">40 · more steps</option></select></div></div>
 <label for="seed">Seed <span class="hint">same settings, repeatable result</span></label><input id="seed" type="number" min="-1" max="2147483647" value="42" required>
 <button id="generate" type="submit" disabled>Generate image <span aria-hidden="true">→</span></button>
 <p class="small">One image at a time. A portrait at 20 steps took about 2 minutes on an RTX 4060 8GB. Your time may differ.</p>
 </form>
 <details><summary>Model location &amp; first-time setup</summary><p id="model-root"></p><p>Missing models? In the repository folder, run:</p><pre>python skills/qwen-image-local/scripts/qwen_local.py install</pre><p>Then restart this server. To reuse models elsewhere, set <code>QWEN_IMAGE_LOCAL_ROOT</code> before launching.</p><p>Initial download: about 11GB. Generation uses local files only.</p></details>
+<details><summary>Enable reference-image attachments</summary><p>Install the optional 1.16GB vision component once, then refresh this page:</p><pre>python skills/qwen-image-local/scripts/qwen_local.py install-reference</pre><p>Describe what to keep or change in the reference. Reference generations can take longer. Images stay on your PC.</p></details>
 </section>
 <section class="result" aria-labelledby="result-title"><div class="result-header"><h2 id="result-title">Your image</h2><a id="download" class="download" hidden download="qwen-local.png">Save PNG ↓</a></div>
 <div id="canvas"><div id="empty"><div class="frame" aria-hidden="true"></div><h3>A blank canvas. Your idea.</h3><p>Your generated image will appear here.</p></div><img id="image" alt="Your locally generated image" hidden></div>
 <div class="statusbar" aria-live="polite"><span id="activity">Ready when you are.</span><span id="elapsed"></span></div><progress id="progress" hidden aria-label="Image generation in progress"></progress>
 <p id="error" role="alert" hidden></p><p id="result-info" class="small"></p>
+<div class="history-controls"><div><button id="previous" type="button" disabled>← Previous</button><span id="history-position">No versions yet</span><button id="next" type="button" disabled>Next →</button></div><div><button id="reuse-prompt" type="button" disabled>Reuse prompt &amp; settings</button><button id="use-reference" type="button" disabled>Use image as reference</button></div></div><p id="selection-note" class="small" role="status"></p><div id="history" aria-label="Generated image history"></div>
 </section>
 </main><footer>Local generation. No image API. Keep the launcher running while you create.</footer>
 </body></html>

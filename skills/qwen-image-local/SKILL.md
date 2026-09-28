@@ -20,11 +20,15 @@ Use an existing working Python 3.11+ interpreter. A model root comes from `--roo
 
 Translate the user's image intent into a clear prompt while preserving subject, style, and constraints. For an underspecified ordinary image, choose reasonable details and proceed. Use the existing model; downloading or changing a model is a separate installation action. Keep the user's requested local execution: report a local failure rather than silently switching to a hosted image tool.
 
-Defaults are 832×1216, 20 steps, CFG 6, seed 42, 6.5 GiB VRAM budget, and tiled VAE decoding. Use `--width` and `--height` in multiples of 32, `--steps`, and `--seed` when requested. Keep output paths unique; existing images and sidecars are protected against overwriting. Image editing is not supported by this packaged workflow.
+Defaults are 832×1216, 20 steps, CFG 6, seed 42, 6.5 GiB VRAM budget, and tiled VAE decoding. Use `--width` and `--height` in multiples of 32, `--steps`, and `--seed` when requested. Keep output paths unique; existing images and sidecars are protected against overwriting.
+
+For a reference-guided request, inspect the supplied image, ensure the optional vision component is installed (see setup), and pass `--reference 'absolute/path.png'` along with the user's instructions. Do not describe plain prompt regeneration as image editing. Reference-conditioned GPU output is experimental in v0.1.0 and needs actual output verification before claiming success or subject preservation.
 
 ## Local web studio
 
 When the user wants a prompt-entry page with the output beside it, run `python scripts/qwen_local.py serve --open` with the same root configuration. It serves the bundled `web/` assets at `http://127.0.0.1:8766/`. Keep the server process alive for the user; use `--port` after `serve` when the default port is occupied. Outputs default to the model root's `outputs/web`. Verify readiness and, when testing generation, submit through the page and wait until the actual image is visible. The web UI runs one job at a time, requires local models, and does not download models automatically. See [setup](references/setup.md) for first-time installation.
+
+The studio provides Previous/Next history, prompt/settings reuse, PNG/JPEG attachments, and selected-version references. The latest 100 saved versions survive restarts. Prior images and uploads remain on disk. Generation uses an OS lock per model root, including across studio windows and CLI processes.
 
 ## Completion
 

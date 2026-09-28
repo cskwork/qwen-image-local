@@ -11,6 +11,8 @@ import time
 
 SKILL = Path(__file__).resolve().parents[1]
 MANIFEST = Path(__file__).with_name('assets.json')
+VISION_MANIFEST = Path(__file__).with_name('vision.json')
+VISION_NAME = 'models/mmproj-Qwen3VL-8B-Instruct-F16.gguf'
 MODEL_NAMES = (
     'models/qwen-image-2.1-Q4_K_M.gguf',
     'models/Qwen3-VL-8B-Instruct-UD-Q4_K_XL.gguf',
@@ -59,12 +61,21 @@ def dimensions(value):
 
 
 def command(root, args, output):
-    return [str(root / 'runtime/sd-cli.exe'), '--diffusion-model', str(root / MODEL_NAMES[0]),
+    result = [str(root / 'runtime/sd-cli.exe'), '--diffusion-model', str(root / MODEL_NAMES[0]),
             '--llm', str(root / MODEL_NAMES[1]), '--vae', str(root / MODEL_NAMES[2]),
             '-p', args.prompt, '-W', str(args.width), '-H', str(args.height),
             '--steps', str(args.steps), '--cfg-scale', '6.0', '--sampling-method', 'euler',
             '--offload-to-cpu', '--fa', '--vae-tiling', '--max-vram', str(args.max_vram),
             '-s', str(args.seed), '-o', str(output)]
+    if getattr(args, 'reference', None):
+        result += ['--llm_vision', str(root / VISION_NAME), '-r', str(args.reference)]
+    return result
+
+
+def reference_ready(root):
+    asset = json.loads(VISION_MANIFEST.read_text(encoding='utf-8'))[0]
+    path = root / VISION_NAME
+    return path.is_file() and path.stat().st_size == asset['size']
 
 
 def verify_png(path, width, height):
@@ -77,6 +88,12 @@ def verify_png(path, width, height):
 
 
 def generate(root, args):
+    from generation_lock import generation_lock
+    with generation_lock(root):
+        return _generate(root, args)
+
+
+def _generate(root, args):
     if not args.prompt.strip():
         raise ValueError('Prompt must not be empty.')
     if not 1 <= args.steps <= 100 or not 1 <= args.max_vram <= 128:
@@ -90,6 +107,12 @@ def generate(root, args):
         if path.exists():
             raise FileExistsError(f'Refusing to overwrite: {path}')
     doctor(root)
+    reference = getattr(args, 'reference', None)
+    if reference:
+        if not reference_ready(root):
+            raise RuntimeError('Reference support is missing. Run install-reference first.')
+        if not Path(reference).is_file():
+            raise FileNotFoundError(f'Reference image not found: {reference}')
     output.parent.mkdir(parents=True, exist_ok=True)
     start = time.perf_counter()
     with log.open('x', encoding='utf-8') as stream:
@@ -111,6 +134,8 @@ def generate(root, args):
                     runtime='stable-diffusion.cpp 3f8527a CUDA12', prompt=args.prompt,
                     width=args.width, height=args.height, steps=args.steps, seed=args.seed,
                     cfg_scale=6.0, elapsed_seconds=elapsed, vae_tiling=True)
+    if reference:
+        metadata['reference_file'] = Path(reference).name
     with meta.open('x', encoding='utf-8') as stream:
         json.dump(metadata, stream, ensure_ascii=False, indent=2)
     print(f'Saved: {output}\nElapsed: {elapsed} seconds', flush=True)
@@ -123,6 +148,7 @@ def main():
     check = sub.add_parser('doctor', help='Check local files and NVIDIA GPU')
     check.add_argument('--verify', action='store_true', help='Also verify model SHA-256 hashes')
     sub.add_parser('install', help='Download and verify pinned model/runtime files')
+    sub.add_parser('install-reference', help='Download the optional 1.16GB vision component')
     web = sub.add_parser('serve', help='Open the local prompt-and-image web app')
     web.add_argument('--port', type=int, default=8766)
     web.add_argument('--open', action='store_true', dest='open_browser')
@@ -135,17 +161,19 @@ def main():
     gen.add_argument('--steps', type=int, default=20)
     gen.add_argument('--seed', type=int, default=42)
     gen.add_argument('--max-vram', type=float, default=6.5, help='GPU memory budget in GiB')
+    gen.add_argument('--reference', type=Path, help='Reference PNG or JPEG (requires install-reference)')
     args = parser.parse_args()
     root = model_root(args.root)
     if args.action == 'doctor':
         doctor(root, args.verify)
-    elif args.action == 'install':
+    elif args.action in ('install', 'install-reference'):
         if sys.platform != 'win32':
             raise RuntimeError('Installer supports Windows x64 only.')
         if not shutil.which('curl.exe'):
             raise RuntimeError('curl.exe was not found on PATH.')
         from download import install
-        install(root, json.loads(MANIFEST.read_text(encoding='utf-8')))
+        manifest = VISION_MANIFEST if args.action == 'install-reference' else MANIFEST
+        install(root, json.loads(manifest.read_text(encoding='utf-8')))
         doctor(root, verify=True)
     elif args.action == 'serve':
         from web_server import serve
